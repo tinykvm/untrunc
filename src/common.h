@@ -248,24 +248,43 @@ FILE* _my_open(const char* path, const wchar_t* mode);
 void callPstack();
 std::vector<std::string> splitAndTrim(const std::string &str);
 
-template <typename... Args>
-void printArgs(std::ostream& os, const std::string& sep, const std::string& argNames, Args... args) {
-	std::vector<std::string> names = splitAndTrim(argNames);
-	if (names.size()) {
-		os << sep;
-		int i = 0;
-		bool first = true; // Flag to check if it is the first element
-		([&](const auto& arg) {
-			if (!first) {
-				os << ", ";
-			}
-			first = false;
-			os << names[i++] << "=" << arg;
-		}(args), ...);
-	}
-	os << "\n";
+template <typename T>
+void _printArg(std::ostream& os, const std::string& name, T value) {
+    os << name << "=" << value;
 }
 
+// 将函数声明和定义分开，声明为 inline
+inline void _printArgs(std::ostream& os, const std::vector<std::string>& names, int& i) {
+    // 空实现，用于处理没有参数的情况
+}
+
+template <typename T>
+void _printArgs(std::ostream& os, const std::vector<std::string>& names, int& i, T value) {
+    if (i < static_cast<int>(names.size())) {
+        _printArg(os, names[i], value);
+    }
+}
+
+template <typename T, typename... Args>
+void _printArgs(std::ostream& os, const std::vector<std::string>& names, int& i, T value, Args... args) {
+    if (i < static_cast<int>(names.size())) {
+        _printArg(os, names[i], value);
+        os << ", ";
+    }
+    i++;
+    _printArgs(os, names, i, args...);
+}
+
+template <typename... Args>
+void printArgs(std::ostream& os, const std::string& sep, const std::string& argNames, Args... args) {
+    std::vector<std::string> names = splitAndTrim(argNames);
+    if (names.size()) {
+        os << sep;
+        int i = 0;
+        _printArgs(os, names, i, args...);
+    }
+    os << "\n";
+}
 
 #define dbgg(msg, ...) if (g_log_mode >= V) __dbgg(msg, #__VA_ARGS__, ##__VA_ARGS__)
 

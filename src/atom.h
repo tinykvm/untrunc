@@ -93,8 +93,8 @@ public:
 
 	off_t excludedEndOff() {
 		if (sequences_to_exclude_.empty()) return 0;
-		auto [last_start, last_length] = sequences_to_exclude_.back();
-		return last_start + last_length;
+		const std::pair<off_t, uint64_t>& last_sequence = sequences_to_exclude_.back();
+		return last_sequence.first + last_sequence.second;
 	}
 
 	void write(FileWrite &file, bool force_64=false);

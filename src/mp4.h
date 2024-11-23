@@ -36,10 +36,21 @@ struct TrackGcdInfo;
 
 struct WouldMatchCfg {
 	off_t offset;
-	const std::string& skip = "";
-	bool force_strict = false;
-	int last_track_idx = -1;
-	bool very_first = false;
+	std::string skip;
+	bool very_first;
+	int last_track_idx;
+	bool force_strict;
+
+	WouldMatchCfg() : offset(0), skip(""), very_first(false), last_track_idx(-1), force_strict(false) {}
+	
+	explicit WouldMatchCfg(off_t off) 
+		: offset(off), skip(""), very_first(false), last_track_idx(-1), force_strict(false) {}
+	
+	WouldMatchCfg(off_t off, const std::string& s, bool vf) 
+		: offset(off), skip(s), very_first(vf), last_track_idx(-1), force_strict(false) {}
+	
+	WouldMatchCfg(off_t off, const std::string& s, bool vf, int lti) 
+		: offset(off), skip(s), very_first(vf), last_track_idx(lti), force_strict(false) {}
 };
 typedef WouldMatchCfg WMCfg;
 
@@ -294,7 +305,11 @@ private:
 
 	bool currentChunkFinished(int add_extra=0) {
 		if (next_chunk_idx_ == 0) return true;
-		auto [cur_track_idx, expected_ns] = track_order_[(next_chunk_idx_-1) % track_order_.size()];
+		
+		size_t idx = (next_chunk_idx_-1) % track_order_.size();
+		int cur_track_idx = track_order_[idx].first;
+		int expected_ns = track_order_[idx].second;
+		
 		assert(cur_track_idx == last_track_idx_);
 		auto& t = tracks_[cur_track_idx];
 		if (t.current_chunk_.n_samples_ + add_extra < expected_ns) {

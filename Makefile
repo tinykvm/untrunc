@@ -49,7 +49,7 @@ else
 	endif
 endif
 
-CXXFLAGS += -std=c++17 -D_FILE_OFFSET_BITS=64
+CXXFLAGS += -std=c++11 -D_FILE_OFFSET_BITS=64
 
 ifeq ($(IS_RELEASE), 1)
 	CXXFLAGS += -O3
@@ -132,7 +132,7 @@ $(FFDIR)/config.asm: | $(FFDIR)/configure
 	cd $(FFDIR); ./configure --disable-doc --disable-programs \
 	--disable-everything --enable-decoders --disable-vdpau --enable-demuxers --enable-protocol=file \
 	--disable-avdevice --disable-swresample --disable-swscale --disable-avfilter --disable-postproc \
-	--disable-xlib --disable-vaapi --disable-zlib --disable-bzlib --disable-lzma \
+	--disable-xlib --disable-vaapi --disable-zlib --disable-bzlib --disable-lzma --disable-x86asm \
 	--disable-audiotoolbox --disable-videotoolbox $(EXTRA_FF_OPTS)
 
 $(FFDIR)/libavcodec/libavcodec.a: | $(FFDIR)/config.asm
